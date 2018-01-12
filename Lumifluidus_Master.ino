@@ -254,7 +254,7 @@ slight_ButtonInput myButtonInfrared(
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // a string to hold new data
-char  sMenu_Input_New[]				= "x255:255,255,255,255";
+char  sMenu_Input_New[]				= "t1;F:65535;255,255,255,255,255,255,255,255,255,255,255,255;XYZ";
 // flag if string is complete
 bool bMenu_Input_Flag_BF		= false; // BufferFull
 bool bMenu_Input_Flag_EOL		= false;
@@ -264,7 +264,7 @@ bool bMenu_Input_Flag_LongLine	= false;
 bool bMenu_Input_Flag_SkipRest	= false;
 
 // string for Currently to process Command
-char  sMenu_Command_Current[]		= "x255:255,255,255,255 ";
+char  sMenu_Command_Current[]		= "t1;F:65535;255,255,255,255,255,255,255,255,255,255,255,255;XYZ ";
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -425,9 +425,11 @@ void handleMenu_Main(Print &pOut, char *caCommand) {
 			pOut.println(F("\t 'x': tests"));
 			pOut.println();
 			pOut.println(F("\t 'q': toggle sequencer"));
-			pOut.println(F("\t 't': send runtime 't255'"));
+			pOut.println(F("\t 'T': send runtime 'T255'"));
 			pOut.println(F("\t 'c': send color 'c255:255,255,255'"));
-			pOut.println(F("\t 'I': send ir 'c255:255'"));
+			pOut.println(F("\t 'I': send ir 'I255:255'"));
+			pOut.println(F("\t 'q': toggle IR all 'q'"));
+			pOut.println(F("\t 't': send command to target 't255$COMMAND TO SEND'"));
 			// pOut.println(F("\t 'f': DemoFadeTo(ID, value) 'f1:65535'"));
 			pOut.println();
 			pOut.println(F("\t 'set:' enter SubMenu1"));
@@ -479,7 +481,7 @@ void handleMenu_Main(Print &pOut, char *caCommand) {
 			sequencer_ActiveToggle();
 		} break;
 
-		case 't': {
+		case 'T': {
 			pOut.println(F("\t sendRunTime"));
 			char *caTempPos = &caCommand[1];
 
@@ -559,6 +561,11 @@ void handleMenu_Main(Print &pOut, char *caCommand) {
 			sendColor(temp_target, temp_red, temp_green, temp_blue);
 
 
+		} break;
+
+		case 't': {
+			pOut.println(F("\t sendCommandToTarget"));
+			sendCommandToTarget(pOut, caCommand);
 		} break;
 
 		case 'I': {
@@ -700,6 +707,11 @@ void check_NewLineComplete() {
 
 		}// if Flag complete
 }
+
+// serial example
+// t1$F:100;255,0,0,0,20,0,0,0,1,255,255,255
+
+
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Serial Receive Handling
@@ -880,6 +892,46 @@ void sendColor(uint8_t uiTarget, uint8_t uiRed, uint8_t uiGreen, uint8_t uiBlue)
 	Serial.println();
 }
 
+
+void sendFadeColorIndividualASCII(uint8_t uiTarget, uint16_t fadetime, uint8_t colordata[]) {
+	// command:
+	// F:65535;255,255,255,255,255,255,255,255,255,255,255,255
+	Serial.println("sendFadeColorIndividualASCII:");
+	char tempData[] = "F:65535;255,255,255,255,255,255,255,255,255,255,255,255";
+	sprintf(
+		tempData,
+		"F:%0u;%0u,%0u,%0u,%0u,%0u,%0u,%0u,%0u,%0u,%0u,%0u,%0u",
+		fadetime,
+		colordata[0],
+		colordata[1],
+		colordata[2],
+		colordata[3],
+		colordata[4],
+		colordata[5],
+		colordata[6],
+		colordata[7],
+		colordata[8],
+		colordata[9],
+		colordata[10],
+		colordata[11]
+	);
+
+	Serial.print("\t uiTarget: ");
+	Serial.println(uiTarget);
+
+	Serial.print("\t tempData: ");
+	Serial.println(tempData);
+
+	Serial.print("\t sendWithRetry: ");
+	if (  radio.sendWithRetry(uiTarget, tempData, strlen(tempData) )   ) {
+		Serial.print(" ok!");
+	} else {
+		Serial.print(" nothing...");
+	}
+
+	Serial.println();
+}
+
 void sendIR(uint8_t uiTarget, uint8_t uiIR) {
 	Serial.println("sendIR:");
 	char tempData[] = "ir:255";
@@ -902,10 +954,88 @@ void sendIR(uint8_t uiTarget, uint8_t uiIR) {
 }
 
 void sendIR_all(uint8_t ir_value){
-	for (size_t i_target = 5; i_target < 10; i_target++) {
+	for (size_t i_target = 1; i_target < 10; i_target++) {
 		sendIR(i_target, ir_value);
 	}
 }
+
+
+
+
+void sendCommandToTarget(Print &out, char *command) {
+	out.println(F("send Command To Target:"));
+
+	out.print(F("\t   command: '"));
+	out.print(command);
+	out.println(F("'"));
+
+	char *tempPos = &command[0];
+
+	// command:
+	// t255$COMMANDTOSEND
+
+  // strip target ID
+	// // init for ':'
+	// tempPos = strtok(tempPos, ": ");
+	// out.println(F("\t   init ': '"));
+	// out.print(F("\t   tempPos: '"));
+	// out.print(tempPos);
+	// out.println(F("'"));
+  //
+	// // get first position
+	// tempPos = strtok(NULL, ": ");
+	// out.println(F("\t   first ': '"));
+	// out.print(F("\t   tempPos: '"));
+	// out.print(tempPos);
+	// out.println(F("'"));
+
+  // strip 't'
+	tempPos += 1;
+	out.print(F("\t   tempPos: '"));
+	out.print(tempPos);
+	out.println(F("'"));
+
+	uint8_t target = atoi(tempPos);
+	out.print(F("\t   target: '"));
+	out.print(target);
+	out.println(F("'"));
+
+
+	// find first ';'
+	tempPos = strtok(tempPos, "$ ");
+	out.println(F("\t   find '$ '"));
+	out.print(F("\t   tempPos: '"));
+	out.print(tempPos);
+	out.println(F("'"));
+
+	tempPos = strtok(NULL, "$ ");
+	out.println(F("\t   second '$ '"));
+	out.print(F("\t   tempPos: '"));
+	out.print(tempPos);
+	out.print(F("' (length:"));
+	out.print(strlen(tempPos));
+	out.println(F(")"));
+
+
+	// // strip 't'
+	// tempPos += 1;
+	// out.print(F("\t   tempPos: '"));
+	// out.print(tempPos);
+	// out.println(F("'"));
+
+
+  // send
+	Serial.print("\t sendWithRetry: ");
+	if (
+		radio.sendWithRetry(target, tempPos, strlen(tempPos))
+	) {
+		Serial.print(" ok!");
+	} else {
+		Serial.print(" nothing...");
+	}
+	Serial.println();
+}
+
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // input handler
@@ -1058,7 +1188,8 @@ uint16_t sequencer_CurrentWaitDuration = 0;
 
 
 
-const uint8_t sequencer_StepCount = (uint16_t)sizeof(sequencer_StepData) / sizeof(tLightBallInfo);
+const uint8_t sequencer_StepCount =
+	(uint16_t)sizeof(sequencer_StepData) / sizeof(tLightBallInfo);
 
 
 void sequencer_NextStep() {
