@@ -1,96 +1,91 @@
-/**************************************************************************************************
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//
+// Lumifluidus_Master
+// 	uses Hope RFM69 Module to transmit data.
+// 	Master for Lumifluidus Project.
+// 	debugout on usbserial interface: 115200baud
+//
+// Functions:
+// 	can send 'How Is There' requests and collects answering IDs
+// 	than the master can send color information to every listed ID
+//
+// hardware:
+// 	Board:
+// 		Arduino compatible
+// 		with RFM69 module
+// 		for example: Mega1284RFM69_PCB
+//
+// libraries used:
+// 	~ Wire.h  arduino TWI-lib
+// 	~ SPI.h arduino SPI-lib
+// 	~ EEPROMEx.h
+// 		Extended EEPROM library
+// 		Copyright (c) 2012 Thijs Elenbaas.  All right reserved.
+// 		GNU Lesser General Public  License, version 2.1
+// 		http://thijs.elenbaas.net/2012/07/extended-eeprom-library-for-arduino/
+// 	~ RFM69.h
+// 		RFM69 Library
+// 		for Hope RF RFM69W, RFM69HW, RFM69CW, RFM69HCW (semtech SX1231, SX1231H)
+// 		Copyright Felix Rusu (2014), felix@lowpowerlab.com
+// 		http://lowpowerlab.com/
+// 		GNU General Public License 3 (http://www.gnu.org/licenses/gpl-3.0.txt)
+// 		https://github.com/LowPowerLab/
+// 	~ slight_ButtonInput
+// 		written by stefan krueger (s-light),
+// 			code@s-light.eu, http://s-light.eu, https://github.com/s-light/
+// 		cc by sa, Apache License Version 2.0
+// 	~
+//
+//
+// written by stefan krueger (s-light),
+// 	code@s-light.eu, http://s-light.eu, https://github.com/s-light/
+//
+//
+// changelog / history
+// 	08.02.2015 14:51 created based on 'LightBall_V1.ino'
+// 	08.02.2015 14:52 change id.
+// 	14.03.2015 13:13 added 'send color' function
+// 	02.06.2015 12:35 added 'send ir' function
+// 	06.06.2015 23:00 added sequencer for automatic color sending
+// 	07.06.2015 07:50 added button for
+// 		click:			manual 'sequencer_NextStep()'
+// 		doubleclick:	'sequencer_ActiveToggle'
+//
+// TO DO:
+// 	~ implement 'How is there' requests
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// license
+//
+// GNU GENERAL PUBLIC LICENSE (Version 3, 29 June 2007 or later)
+// 	details see LICENSE file
+//
+// Apache License Version 2.0
+// 	Copyright 2015-2018 Stefan Krueger
+//
+// 	Licensed under the Apache License, Version 2.0 (the "License");
+// 	you may not use this file except in compliance with the License.
+// 	You may obtain a copy of the License at
+//
+// 	http://www.apache.org/licenses/LICENSE-2.0
+//
+// 	Unless required by applicable law or agreed to in writing, software
+// 	distributed under the License is distributed on an "AS IS" BASIS,
+// 	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// 	See the License for the specific language governing permissions and
+// 	limitations under the License.
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-	LightBall_Master
-		uses Hope RFM69 Module to transmit data.
-		Master for LightBall System.
-		debugout on usbserial interface: 115200baud
 
-	Functions:
-		can send 'How Is There' requests and collects answering IDs
-		than the master can send color information to every listed ID
-
-	hardware:
-		Board:
-			Arduino compatible
-			with RFM69 module
-			for example: Mega1284RFM69_PCB
-
-	libraries used:
-		~ Wire.h  arduino TWI-lib
-		~ SPI.h arduino SPI-lib
-		~ EEPROMEx.h
-			Extended EEPROM library
-			Copyright (c) 2012 Thijs Elenbaas.  All right reserved.
-			GNU Lesser General Public  License, version 2.1
-			http://thijs.elenbaas.net/2012/07/extended-eeprom-library-for-arduino/
-		~ RFM69.h
-			RFM69 Library
-			for Hope RF RFM69W, RFM69HW, RFM69CW, RFM69HCW (semtech SX1231, SX1231H)
-			Copyright Felix Rusu (2014), felix@lowpowerlab.com
-			http://lowpowerlab.com/
-			GNU General Public License 3 (http://www.gnu.org/licenses/gpl-3.0.txt)
-			https://github.com/LowPowerLab/
-		~ slight_ButtonInput
-			written by stefan krueger (s-light),
-				code@s-light.eu, http://s-light.eu, https://github.com/s-light/
-			cc by sa, Apache License Version 2.0
-		~
-
-
-	written by stefan krueger (s-light),
-		code@s-light.eu, http://s-light.eu, https://github.com/s-light/
-
-
-	changelog / history
-		08.02.2015 14:51 created based on 'LightBall_V1.ino'
-		08.02.2015 14:52 change id.
-		14.03.2015 13:13 added 'send color' function
-		02.06.2015 12:35 added 'send ir' function
-		06.06.2015 23:00 added sequencer for automatic color sending
-		07.06.2015 07:50 added button for
-			click:			manual 'sequencer_NextStep()'
-			doubleclick:	'sequencer_ActiveToggle'
-
-	TO DO:
-		~ implement 'How is there' requests
-
-
-**************************************************************************************************/
-/**************************************************************************************************
-	license
-
-	Please CHECK compatibility with RFM lib !!!!!!!!
-
-	CC BY SA
-		This work is licensed under the
-		Creative Commons Attribution-ShareAlike 3.0 Unported License.
-		To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/3.0/.
-
-	Apache License Version 2.0
-		Copyright 2015 Stefan Krueger
-
-		Licensed under the Apache License, Version 2.0 (the "License");
-		you may not use this file except in compliance with the License.
-		You may obtain a copy of the License at
-
-		http://www.apache.org/licenses/LICENSE-2.0
-
-		Unless required by applicable law or agreed to in writing, software
-		distributed under the License is distributed on an "AS IS" BASIS,
-		WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-		See the License for the specific language governing permissions and
-		limitations under the License.
-
-**************************************************************************************************/
-
-/**************************************************************************************************/
-/** Includes:  (must be at the beginning of the file.)                                           **/
-/**************************************************************************************************/
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Includes:  (must be at the beginning of the file.)
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // use "" for files in same directory as .ino
 //#include "file.h"
 
 // device identity structure definitions
-#include "DeviceIdentity.h"
+#include "DeviceIdentityStruct.h"
+
 #include "TypeLightBallInfo.h"
 //#include "sequencerData.cpp"
 #include "sequenceData.h"
@@ -101,17 +96,17 @@
 // arduino TWI / I2C lib
 // #include <Wire.h>
 
-// edit EEPROMEx.h so that EEPROM.h is not include seams to work.. ?!
-// #include <EEPROM.h>
-#include <EEPROMex.h>
-
 #include <RFM69.h>
 
 #include <slight_ButtonInput.h>
 
-/**************************************************************************************************/
-/** info                                                                                         **/
-/**************************************************************************************************/
+
+#include "DeviceIdentity.h"
+#include "printHelper.h"
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// info
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 void print_info(Print &pOut) {
 	pOut.println();
 	//             "|~~~~~~~~~|~~~~~~~~~|~~~..~~~|~~~~~~~~~|~~~~~~~~~|"
@@ -121,7 +116,7 @@ void print_info(Print &pOut) {
 	pOut.println(F("|                      ( _ )                     |"));
 	pOut.println(F("|                       \" \"                      |"));
 	pOut.println(F("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"));
-	pOut.println(F("| LightBall_Master.ino"));
+	pOut.println(F("| Lumifluidus_Master.ino"));
 	pOut.println(F("|  Light Ball MASTER"));
 	pOut.println(F("|"));
 	pOut.println(F("| This Sketch has a debug-menu:"));
@@ -152,14 +147,14 @@ void print_info(Print &pOut) {
 **/
 
 
-/**************************************************************************************************/
-/** definitions (gloabl)                                                                         **/
-/**************************************************************************************************/
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// definitions (gloabl)
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-/**************************************************/
-/**  DebugOut                                    **/
-/**************************************************/
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// DebugOut
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 boolean bLEDState = 0;
 // const uint8_t cbID_LED_Info = 9;
@@ -177,16 +172,9 @@ const uint16_t cwDebugOut_LiveSign_UpdateInterval			= 1000; //ms
 boolean bDebugOut_LiveSign_Serial_Enabled	= 0;
 boolean bDebugOut_LiveSign_LED_Enabled		= 1;
 
-
-/**************************************************/
-/**  EEPROMEx                                    **/
-/**************************************************/
-unsigned int eeprom_Address_DeviceHardware = 0;
-unsigned int eeprom_Address_DeviceConfig = eeprom_Address_DeviceHardware + sizeof(tDeviceHardware);
-
-/************************************************/
-/**  Device Information                        **/
-/************************************************/
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Device Information
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //#include "DeviceInfo.h"
 
 // store this in EEPROM
@@ -212,9 +200,9 @@ tDeviceConfig dconfThisBall = {
 	  1000,		// uint16_t uiFadeTime; (ms)
 };
 
-/************************************************/
-/** RFM69                                      **/
-/************************************************/
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// RFM69
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 RFM69 radio;
 // other config values are stored in eeprom.
@@ -230,9 +218,9 @@ const bool radio_PromiscuosMode =	false;
 #define radio_KEY 					"!Light_Ball_Art!"
 
 
-/**************************************************/
-/**  slight ButtonInput                          **/
-/**************************************************/
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// slight ButtonInput
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 const uint8_t myButtonSequencer_ID = 42;
 slight_ButtonInput myButtonSequencer(
@@ -261,9 +249,9 @@ slight_ButtonInput myButtonInfrared(
 );
 
 
-/**************************************************/
-/** Menu Input                                   **/
-/**************************************************/
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Menu Input
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // a string to hold new data
 char  sMenu_Input_New[]				= "x255:255,255,255,255";
@@ -279,9 +267,9 @@ bool bMenu_Input_Flag_SkipRest	= false;
 char  sMenu_Command_Current[]		= "x255:255,255,255,255 ";
 
 
-/************************************************/
-/**  Output system                             **/
-/************************************************/
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Output system
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // DualWrite from pYro_65 read more at: http://forum.arduino.cc/index.php?topic=200975.0
 class DualWriter : public Print{
 	public:
@@ -301,9 +289,9 @@ class DualWriter : public Print{
 
 
 
-/**************************************************/
-/** other things...                              **/
-/**************************************************/
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// other things...
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // sequencer
 bool sequencer_Active = false;
@@ -312,13 +300,13 @@ bool infraed_Active = false;
 const uint8_t cbPIN_LED_Infrared = 15;
 
 
-/**************************************************************************************************/
-/** functions                                                                                    **/
-/**************************************************************************************************/
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// functions
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-/************************************************/
-/**  Debug things                              **/
-/************************************************/
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Debug things
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // http://forum.arduino.cc/index.php?topic=183790.msg1362282#msg1362282
 int freeRam () {
@@ -393,9 +381,9 @@ void printuint8_tAlignRight(uint8_t bValue) {
 }
 
 
-/************************************************/
-/**  Menu System                               **/
-/************************************************/
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Menu System
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // Modes for Menu Switcher
 const uint8_t cbMenuMode_MainMenu	= 1;
@@ -689,16 +677,16 @@ void check_NewLineComplete() {
 			// Serial.println(F("'"));
 
 
-			// // Serial.println(F("  check bMenu_Input_Flag_SkipRest"));
+			// Serial.println(F("  check bMenu_Input_Flag_SkipRest"));
 			// if ( !bMenu_Input_Flag_SkipRest) {
-				// // Serial.println(F("   parse Line:"));
+				// Serial.println(F("   parse Line:"));
 
 				// if (bMenu_Input_Flag_BF) {
 					// Serial.println(F("input was to long. used first part - skipped rest."));
 					// bMenu_Input_Flag_BF = false;
 				// }
 
-				// // parse line / run command
+				// parse line / run command
 				// menuSwitcher(Serial, sMenu_Command_Current);
 
 				// if(bMenu_Input_Flag_LongLine) {
@@ -706,16 +694,16 @@ void check_NewLineComplete() {
 					// bMenu_Input_Flag_LongLine = false;
 				// }
 			// } else {
-				// // Serial.println(F("   skip rest of Line"));
+				// Serial.println(F("   skip rest of Line"));
 				// bMenu_Input_Flag_SkipRest = false;
 			// }
 
 		}// if Flag complete
 }
 
-/************************************************/
-/**  Serial Receive Handling                   **/
-/************************************************/
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Serial Receive Handling
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 void handle_SerialReceive() {
 	// collect next input text
@@ -807,264 +795,9 @@ void handle_SerialReceive() {
 }
 
 
-/************************************************/
-/**  EEPROMEx functions                        **/
-/************************************************/
-
-/* print Helper
-void print_HEX(Print &pOut, uint8_t bValue) {
-	if( bValue < 0x10) {
-		pOut.print("0");
-	}
-	pOut.print(bValue,HEX);
-}
-
-void print_MAC(Print &pOut, uint8_t *array) {
-	//pOut.print(F(" "));
-	uint8_t bIndex = 0;
-	print_HEX(pOut, array[bIndex]);
-	for(bIndex = 1; bIndex < 6; bIndex++){
-		pOut.print(F(", "));
-		print_HEX(pOut, array[bIndex]);
-	}
-}
-
-
-uint8_t print_AlignRight_uint16_t(Print &pOut, uint16_t wValue) {
-	uint8_t bLeadingZeros = 0;
-	if (wValue < 10000) {
-		bLeadingZeros = bLeadingZeros + 1;
-		pOut.print(F(" "));
-		if (wValue < 1000) {
-			bLeadingZeros = bLeadingZeros + 1;
-			Serial.print(F(" "));
-			if (wValue < 100) {
-				bLeadingZeros = bLeadingZeros + 1;
-				Serial.print(F(" "));
-				if (wValue < 10) {
-					bLeadingZeros = bLeadingZeros + 1;
-					Serial.print(F(" "));
-				}
-			}
-		}
-	}
-	pOut.print(wValue);
-	return bLeadingZeros;
-}
-
-*/
-
-void print_DeviceHW(Print &pOut, tDeviceHardware *dhwTemp){
-	/* *
-	// Individual Hardware Addresses
-	struct tDeviceHardware {
-		uint16_t ID;
-	};
-	* */
-	pOut.println(F("\t deviceHW values:"));
-	pOut.print  (F("\t   ID: "));
-	pOut.print  ((*dhwTemp).ID);
-	pOut.println();
-	pOut.print  (F("\t   radio_Frequency: "));
-	printRFM69Frequence(pOut, (*dhwTemp).radio_Frequency);
-	pOut.println();
-}
-
-// return:  >0 = success
-uint8_t eeprom_DeviceHW_read(tDeviceHardware *dhwNew){
-	// read EEPROM and update dpThisDevice.
-	uint8_t bResultFlag = 0;
-	Serial.println(F("reading DeviceHW values from EEPROM:"));
-	Serial.print(F("\t eeprom_Address_DeviceHardware:"));
-	Serial.println(eeprom_Address_DeviceHardware);
-	Serial.print(F("\t sizeof(tDeviceHardware):"));
-	Serial.print(sizeof(tDeviceHardware));
-	Serial.println(F(" uint8_ts"));
-	tDeviceHardware dhwTemp;
-	uint8_t bReaduint8_t = 0;
-	bReaduint8_t = EEPROM.readBlock(eeprom_Address_DeviceHardware, dhwTemp);
-	if ( bReaduint8_t == sizeof(tDeviceHardware) ) {
-		bResultFlag = 1;
-		Serial.print(F("\t   read "));
-		Serial.print(bReaduint8_t);
-		Serial.println(F(" uint8_ts"));
-		// copy data to local struct.
-		// (*dhwNew).ID = dhwTemp.ID;
-		memcpy(dhwNew, &dhwTemp, sizeof(tDeviceHardware));
-	} else {
-		// something went wrong.
-			bResultFlag = 0;
-		Serial.println(F("\t there occurred an error while reading EEPROM."));
-		Serial.print(F("\t   read "));
-		Serial.print(bReaduint8_t);
-		Serial.println(F(" uint8_ts"));
-	}
-	return bResultFlag;
-};
-
-// return:  >0 = success
-uint8_t eeprom_DeviceHW_update(tDeviceHardware *dhwNew){
-	uint8_t bResultFlag = 0;
-	// update EEPROM with dhwNew.
-	Serial.println(F("update Device Info in EEPROM:"));
-	//Serial.print(F("  free RAM = "));
-	//Serial.println(freeRam());
-	Serial.print(F("\t eeprom_Address_DeviceHardware: "));
-	Serial.println(eeprom_Address_DeviceHardware);
-	Serial.print(F("\t sizeof(tDeviceHardware): "));
-	Serial.print(sizeof(tDeviceHardware));
-	Serial.println(F(" uint8_ts"));
-	uint8_t bWrittenuint8_t = 0;
-	bWrittenuint8_t = EEPROM.updateBlock(eeprom_Address_DeviceHardware, (*dhwNew));
-	//Serial.print(F("  free RAM = "));
-	//Serial.println(freeRam());
-	if ( bWrittenuint8_t > 0 ) {
-		Serial.print(F("\t   updated "));
-		Serial.print(bWrittenuint8_t);
-		Serial.println(F(" uint8_ts"));
-		//Serial.println(F(" is it a timing thing?"));
-		Serial.println(F("\t succesfull updated values."));
-	} else {
-		Serial.println(F("\t nothing to update. values are equal."));
-	}
-	return bResultFlag;
-};
-
-
-
-void print_DeviceConfig(Print &pOut, tDeviceConfig *dconfTemp){
-	/*
-	// Device Configuration
-	struct tDeviceConfig {
-		uint8_t bBallID;
-		uint8_t bNetworkID;
-		uint8_t bMasterID;
-		uint8_t bBallStartAddress;
-		uint16_t uiFadeTime;
-	};
-	*/
-
-	pOut.println(F("\t tDeviceConfig:"));
-	pOut.print  (F("\t   bBallID : "));
-	pOut.print((*dconfTemp).bBallID);
-	pOut.println();
-	pOut.print  (F("\t   bNetworkID : "));
-	pOut.print((*dconfTemp).bNetworkID);
-	pOut.println();
-	pOut.print  (F("\t   bMasterID : "));
-	pOut.print((*dconfTemp).bMasterID);
-	pOut.println();
-	pOut.print  (F("\t   bBallStartAddress : "));
-	pOut.print((*dconfTemp).bBallStartAddress);
-	pOut.println();
-	pOut.print  (F("\t   uiFadeTime : "));
-	pOut.print((*dconfTemp).uiFadeTime);
-	pOut.println();
-
-}
-
-// return:  >0 = success
-uint8_t eeprom_DeviceConfig_read(tDeviceConfig *dconfNew){
-	// read EEPROM and update dpThisDevice.
-	uint8_t bResultFlag = 0;
-	Serial.println(F("reading DeviceConf values from EEPROM:"));
-	Serial.print(F("\t eeprom_Address_DeviceConfig:"));
-	Serial.println(eeprom_Address_DeviceConfig);
-	Serial.print(F("\t sizeof(tDeviceConfig):"));
-	Serial.print(sizeof(tDeviceConfig));
-	Serial.println(F(" uint8_ts"));
-	tDeviceConfig dconfTemp;
-	uint8_t bReaduint8_t = 0;
-	bReaduint8_t = EEPROM.readBlock(eeprom_Address_DeviceConfig, dconfTemp);
-	if ( bReaduint8_t == sizeof(tDeviceConfig) ) {
-		Serial.print(F("\t   read "));
-		Serial.print(bReaduint8_t);
-		Serial.println(F(" uint8_ts"));
-		//copy data to local struct.
-		// --> is it possible to use memcpy ??
-		(*dconfNew).uiFadeTime = dconfTemp.uiFadeTime;
-		bResultFlag = 1;
-	} else {
-		// something went wrong.
-		Serial.println(F("\t there occurred an error while reading EEPROM."));
-		Serial.print(F("\t   read "));
-		Serial.print(bReaduint8_t);
-		Serial.println(F(" uint8_ts"));
-		bResultFlag = 0;
-	}
-	return bResultFlag;
-};
-
-// return:  >0 = success
-uint8_t eeprom_DeviceConfig_update(Print &pOut, tDeviceConfig *dconfNew){
-	// update EEPROM with dconfNew.
-	uint8_t bResultFlag = 0;
-	pOut.println(F("update Device Info in EEPROM:"));
-	pOut.print(F("\t eeprom_Address_DeviceConfig: "));
-	pOut.println(eeprom_Address_DeviceConfig);
-	pOut.print(F("\t sizeof(tDeviceConfig): "));
-	pOut.print(sizeof(tDeviceConfig));
-	pOut.println(F(" uint8_ts"));
-	uint8_t bWritenuint8_t = 0;
-	bWritenuint8_t = EEPROM.updateBlock(eeprom_Address_DeviceConfig, (*dconfNew));
-	if ( bWritenuint8_t > 0 ) {
-		pOut.print(F("\t   updated "));
-		pOut.print(bWritenuint8_t);
-		pOut.println(F(" uint8_ts"));
-		pOut.println(F("\t successful updated values."));
-		bResultFlag = 2;
-	} else {
-		pOut.println(F("\t nothing to update. values are equal."));
-		bResultFlag = 1;
-	}
-	return bResultFlag;
-};
-
-
-
-/************************************************/
-/** RFM69                                      **/
-/************************************************/
-
-void printRFM69Frequence(Print &pOut, const uint8_t cbFrequence) {
-	switch(cbFrequence) {
-		case RF69_433MHZ: {
-			pOut.print(F("433MHz"));
-		} break;
-		case RF69_868MHZ: {
-			pOut.print(F("868MHz"));
-		} break;
-		case RF69_915MHZ: {
-			pOut.print(F("915MHz"));
-		} break;
-	}
-}
-
-void printRFM69Info(Print &pOut) {
-	// get local things
-	tDeviceConfig *dconfThis = &dconfThisBall;
-	tDeviceHardware *dhwThis = &dhwThisBall;
-
-	pOut.println(F("RFM69 Info:"));
-	pOut.print(F("\t radio_Frequency: "));
-	printRFM69Frequence(pOut, (*dhwThis).radio_Frequency);
-	pOut.println();
-	pOut.print(F("\t NetworkID: "));
-	pOut.println((*dconfThis).bNetworkID);
-	pOut.print(F("\t BallID: "));
-	pOut.println((*dconfThis).bBallID);
-	pOut.print(F("\t MasterID: "));
-	pOut.println((*dconfThis).bMasterID);
-
-	pOut.println(F("\t sw fixed values: "));
-	pOut.print(F("\t   radio_ACKTime: "));
-	pOut.println(radio_ACKTime);
-	pOut.print(F("\t   radio_PromiscuosMode: "));
-	pOut.println(radio_PromiscuosMode);
-	pOut.print(F("\t   radio_KEY: "));
-	pOut.println(radio_KEY);
-}
-
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// RFM69
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 void handle_RFM69Receive() {
 	if ( radio.receiveDone() ) {
@@ -1174,13 +907,13 @@ void sendIR_all(uint8_t ir_value){
 	}
 }
 
-/************************************************/
-/** input handler                              **/
-/************************************************/
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// input handler
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-/************************************************/
-/**  slight_ButtonInput things                 **/
-/************************************************/
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// slight_ButtonInput things
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 boolean myInput_callback_GetInput(uint8_t bID, uint8_t bPin) {
 	// read input invert reading - button closes to GND.
@@ -1258,9 +991,9 @@ void myCallback_onEvent(slight_ButtonInput *pInstance, uint8_t bEvent) {
 }
 
 
-/************************************************/
-/** IrToggle                                   **/
-/************************************************/
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// IrToggle
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 void infraed_ActiveToggle() {
@@ -1278,9 +1011,9 @@ void infraed_ActiveToggle() {
 
 
 
-/************************************************/
-/** sequencer                                  **/
-/************************************************/
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// sequencer
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // bool sequencer_Active = false; // now at top of file
 uint16_t sequencer_CurrentStep = 0;
@@ -1360,23 +1093,23 @@ void sequencer_ActiveToggle() {
 	}
 }
 
-/************************************************/
-/** some things                                **/
-/************************************************/
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// some things
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 
 
 
 
-/****************************************************************************************************/
-/** Setup                                                                                          **/
-/****************************************************************************************************/
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~**/
+// Setup
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~**/
 void setup() {
 
-	/************************************************/
-	/** Initialise PINs                            **/
-	/************************************************/
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// Initialise PINs
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 		//LiveSign
 		pinMode(cbID_LED_Info, OUTPUT);
@@ -1388,9 +1121,9 @@ void setup() {
 
 		// as of arduino 1.0.1 you can use INPUT_PULLUP
 
-	/************************************************/
-	/** init serial                                **/
-	/************************************************/
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// init serial
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 		// for ATmega32U4 devices:
 		#if defined (__AVR_ATmega32U4__)
@@ -1414,15 +1147,15 @@ void setup() {
 		Serial.print(F("# Free RAM = "));
 		Serial.println(freeRam());
 
-	/************************************************/
-	/** Welcom                                     **/
-	/************************************************/
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// Welcom
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 		print_info(Serial);
 
-	/************************************************/
-	/** read device identity                       **/
-	/************************************************/
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// read device identity
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 		Serial.println(F("Device Identity:")); {
 			bool bEEPROM_Fine =  eeprom_DeviceHW_read(&dhwThisBall);
@@ -1430,23 +1163,23 @@ void setup() {
 				Serial.println(F("\t EEPROM-HW information are not present. pleas set."));
 				//bMenuMode = cbMenuMode_HWID;
 			} else {
-				print_DeviceHW(Serial, &dhwThisBall);
+				eeprom_DeviceHW_print(Serial, &dhwThisBall);
 			}
 
 			eeprom_DeviceConfig_read(&dconfThisBall);
-			print_DeviceConfig(Serial, &dconfThisBall);
+			eeprom_DeviceConfig_print(Serial, &dconfThisBall);
 		}
 		Serial.println(F("\t finished."));
 
-	/************************************************/
-	/** setup RFM69                                **/
-	/************************************************/
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// setup RFM69
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 		Serial.print(F("# Free RAM = "));
 		Serial.println(freeRam());
 
 		// print all global parameters
-		printRFM69Info(Serial);
+		printRFM69Info(Serial, &dconfThisBall, &dhwThisBall);
 		Serial.println(F("setup RFM69:")); {
 
 			Serial.println(F("\t --> initialize"));
@@ -1460,15 +1193,15 @@ void setup() {
 			radio.encrypt(radio_KEY);
 
 			// Serial.println(F("\t --> set Frequency:"));
-			// // set frequency to some custom frequency
+			// set frequency to some custom frequency
 			// radio.setFrequency(919000000);
 
 		}
 		Serial.println(F("\t --> finished."));
 
-	/************************************************/
-	/** start slight_ButtonInput                   **/
-	/************************************************/
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// start slight_ButtonInput
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		Serial.print(F("# Free RAM = "));
 		Serial.println(freeRam());
 
@@ -1490,9 +1223,9 @@ void setup() {
 
 
 
-	/************************************************/
-	/** show Serial Commands                       **/
-	/************************************************/
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// show Serial Commands
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 		// reset Serial Debug Input
 		memset(sMenu_Input_New, '\0', sizeof(sMenu_Input_New)-1);
@@ -1501,44 +1234,44 @@ void setup() {
 		bMenu_Input_Flag_EOL = true;
 
 
-	/************************************************/
-	/** GO                                         **/
-	/************************************************/
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// GO
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 		Serial.println(F("Loop:"));
 
 
 
-} /** setup **/
+} // setup
 
 
-/****************************************************************************************************/
-/** Main Loop                                                                                      **/
-/****************************************************************************************************/
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~**/
+// Main Loop
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~**/
 void loop() {
 
-	/**************************************************/
-	/** Menu Input                                   **/
-	/**************************************************/
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// Menu Input
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Serial
 		handle_SerialReceive();
 		check_NewLineComplete();
 
-	/************************************************/
-	/** RFM69                                      **/
-	/************************************************/
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// RFM69
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 		handle_RFM69Receive();
 
-	/**************************************************/
-	/** my Button                                    **/
-	/**************************************************/
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// my Button
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		myButtonSequencer.update();
 		myButtonInfrared.update();
 
-	/**************************************************/
-	/** Timed things                                 **/
-	/**************************************************/
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// Timed things
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 		if(sequencer_Active) {
 			// sequencer timing
@@ -1549,9 +1282,9 @@ void loop() {
 
 
 
-	/**************************************************/
-	/** Debug Out                                    **/
-	/**************************************************/
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	// Debug Out
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 		if ( (millis() - ulDebugOut_LiveSign_TimeStamp_LastAction) > cwDebugOut_LiveSign_UpdateInterval) {
 			ulDebugOut_LiveSign_TimeStamp_LastAction = millis();
@@ -1576,13 +1309,13 @@ void loop() {
 
 		}
 
-	/**************************************************/
-	/**                                              **/
-	/**************************************************/
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	//
+	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-} /** loop **/
+} // loop
 
 
-/****************************************************************************************************/
-/** THE END                                                                                        **/
-/****************************************************************************************************/
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~**/
+// THE END
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~**/
