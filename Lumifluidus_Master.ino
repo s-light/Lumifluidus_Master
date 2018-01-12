@@ -428,7 +428,7 @@ void handleMenu_Main(Print &pOut, char *caCommand) {
 			pOut.println(F("\t 'T': send runtime 'T255'"));
 			pOut.println(F("\t 'c': send color 'c255:255,255,255'"));
 			pOut.println(F("\t 'I': send ir 'I255:255'"));
-			pOut.println(F("\t 'q': toggle IR all 'q'"));
+			pOut.println(F("\t 'W': toggle IR all 'q'"));
 			pOut.println(F("\t 't': send command to target 't255$COMMAND TO SEND'"));
 			// pOut.println(F("\t 'f': DemoFadeTo(ID, value) 'f1:65535'"));
 			pOut.println();
@@ -587,6 +587,11 @@ void handleMenu_Main(Print &pOut, char *caCommand) {
 			// send new IR state
 			sendIR(temp_target, temp_ir);
 		} break;
+
+		case 'W': {
+			infraed_ActiveToggle();
+		} break;
+
 		//--------------------------------------------------------------------------------
 		case 's': {
 			// SubMenu1
