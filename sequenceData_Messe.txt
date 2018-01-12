@@ -1,0 +1,225 @@
+
+tLightBallInfo sequencer_StepData[] = {
+	// ------------------------------------
+	// Loop 1
+	{
+		    1,	// uint8_t ballID;
+		  100,	// uint8_t red;
+		  200,	// uint8_t green;
+		  200,	// uint8_t blue;
+			0,  // uint8_t infraed;
+		 1000, 	// uint16_t waitDuration;
+	},
+	{
+		    2,	// ballID;
+		  100,	// red;
+		    0,	// green;
+		    0,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	{
+		    3,	// ballID;
+		    0,	// red;
+		  200,	// green;
+		  200,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	{
+		    4,	// ballID;
+		  200,	// red;
+		   50,	// green;
+		    0,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	{
+		    5,	// ballID;
+		   70,	// red;
+		    0,	// green;
+		  200,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	{
+		    6,	// ballID;
+		   10,	// red;
+		   80,	// green;
+		    0,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	{
+		    7,	// ballID;
+		    0,	// red;
+		    0,	// green;
+		  200,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	{
+		    8,	// ballID;
+		   10,	// red;
+		  150,	// green;
+		    0,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	{
+		    9,	// ballID;
+		    0,	// red;
+		   50,	// green;
+		  100,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	// ------------------------------------
+	// Loop 2
+	{
+		    1,	// ballID;
+		    0,	// red;
+		  200,	// green;
+		   10,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	{
+		    2,	// ballID;
+		   50,	// red;
+		    0,	// green;
+		  200,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	{
+		    3,	// ballID;
+		   50,	// red;
+		    0,	// green;
+		  200,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	{
+		    4,	// ballID;
+		    0,	// red;
+		   50,	// green;
+		    0,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	{
+		    5,	// ballID;
+		    0,	// red;
+		   70,	// green;
+		  200,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	{
+		    6,	// ballID;
+		  200,	// red;
+		    0,	// green;
+		  250,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	{
+		    7,	// ballID;
+		   30,	// red;
+		  100,	// green;
+		    0,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	{
+		    8,	// ballID;
+		  100,	// red;
+		  150,	// green;
+		    0,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	{
+		    9,	// ballID;
+		    0,	// red;
+		  250,	// green;
+		   50,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	// ------------------------------------
+	// Loop 3
+	{
+		    1,	// uint8_t ballID;
+		    0,	// uint8_t red;
+		    0,	// uint8_t green;
+		   10,	// uint8_t blue;
+			0,  // uint8_t infraed;
+		 1000, 	// uint16_t waitDuration;
+	},
+	{
+		    2,	// ballID;
+		    0,	// red;
+		    0,	// green;
+		  200,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	{
+		    3,	// ballID;
+		   50,	// red;
+		    0,	// green;
+		  200,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	{
+		    4,	// ballID;
+		    0,	// red;
+		   50,	// green;
+		  200,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	{
+		    5,	// ballID;
+		  250,	// red;
+		    0,	// green;
+		  250,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	{
+		    6,	// ballID;
+		  200,	// red;
+		   50,	// green;
+		    0,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	{
+		    7,	// ballID;
+		    1,	// red;
+		  100,	// green;
+		   30,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	{
+		    8,	// ballID;
+		   80,	// red;
+		   10,	// green;
+		    0,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+	{
+		    9,	// ballID;
+		   50,	// red;
+		    0,	// green;
+		   50,	// blue;
+			0,  // infraed;
+		 1000, 	// waitDuration;
+	},
+};
